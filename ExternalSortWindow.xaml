@@ -1,0 +1,56 @@
+﻿<Window x:Class="SortingDemo.ExternalSortWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Внешняя сортировка" Height="600" Width="900">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Панель управления -->
+        <StackPanel Grid.Column="0" Margin="10">
+            <TextBlock Text="Внешняя сортировка" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Выберите метод сортировки:" Margin="0,0,0,10"/>
+            <ComboBox Name="SortMethodSelector" Margin="0,0,0,20">
+                <ComboBoxItem Content="Естественное слияние" />
+                <ComboBoxItem Content="Прямое слияние" />
+                <ComboBoxItem Content="Многопутевое слияние" />
+            </ComboBox>
+
+            <TextBlock Text="Введите индекс ключевого поля (0 - первый столбец):" Margin="0,0,0,10"/>
+            <TextBox Name="KeyIndexInput" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Выберите исходный файл:" Margin="0,0,0,10"/>
+            <Button Name="SelectInputFileButton" Content="Выбрать файл" Click="SelectInputFileButton_Click" Margin="0,0,0,20"/>
+
+            <TextBlock Name="InputFilePath" Text="Файл не выбран" FontSize="12" Foreground="Gray" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Выберите результирующий файл:" Margin="0,0,0,10"/>
+            <Button Name="SelectOutputFileButton" Content="Выбрать файл" Click="SelectOutputFileButton_Click" Margin="0,0,0,20"/>
+
+            <TextBlock Name="OutputFilePath" Text="Файл не выбран" FontSize="12" Foreground="Gray" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Задержка (мс):" Margin="0,0,0,10"/>
+            <Slider Name="DelaySlider" Minimum="100" Maximum="2000" Value="500" TickFrequency="100" IsSnapToTickEnabled="True" Margin="0,0,0,20"/>
+
+            <Button Name="StartSortButton" Content="Начать сортировку" Click="StartSortButton_Click" />
+        </StackPanel>
+
+        <Button Name="BackToMainButton" Content="Назад" Click="BackToMainButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,541,0,0" />
+
+
+        <!-- Область вывода -->
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+
+            <!-- Логи -->
+            <TextBox Name="SortingStepsLog" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.Row="0" Background="#f4f4f4" Margin="0,0,0,10" />
+            <TextBox Name="SortingComparisonLog" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.Row="1" Background="#eaeaea" />
+        </Grid>
+    </Grid>
+</Window>
