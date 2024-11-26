@@ -143,8 +143,20 @@ namespace SortingDemo
                 SortingCanvas.Children.Add(text);
             }
 
-            // Логирование текущего шага
-            SortingLog.AppendText($"[{string.Join(", ", array)}] (Сравнение: {index1}, {index2})\n");
+            // Проверяем, что индексы не выходят за пределы массива
+            if (index1 >= 0 && index1 < array.Length && index2 >= 0 && index2 < array.Length)
+            {
+                SortingLog.AppendText($"[{string.Join(", ", array)}] (Сравнение: {array[index1]} и {array[index2]})\n");
+            }
+            else if (index1 >= 0 && index1 < array.Length) // Если сравнение только с одним индексом
+            {
+                SortingLog.AppendText($"[{string.Join(", ", array)}] (Сравнение: {array[index1]})\n");
+            }
+            else
+            {
+                SortingLog.AppendText($"[{string.Join(", ", array)}] (Нет активного сравнения)\n");
+            }
+
             SortingLog.ScrollToEnd();
         }
         private void OpenExternalSortWindowButton_Click(object sender, RoutedEventArgs e)

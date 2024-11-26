@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using static SortingDemo.TimeComparisonWindow;
 
 namespace SortingDemo
 {
@@ -13,6 +14,11 @@ namespace SortingDemo
     {
         private string inputFilePath;
         private string outputFilePath;
+        private SortingResult lastSortingResult;
+        private bool isSortingCompleted = false;
+
+
+
 
         public TextSortingWindow()
         {
@@ -64,6 +70,8 @@ namespace SortingDemo
 
                 List<string> sortedWords;
 
+                var startTime = DateTime.Now; // Запоминаем время начала
+
                 if (selectedMethod == "QuickSort")
                 {
                     sortedWords = await Task.Run(() => QuickSort(words.ToList()));
@@ -76,6 +84,16 @@ namespace SortingDemo
                 {
                     throw new Exception("Неизвестный метод сортировки.");
                 }
+
+                var endTime = DateTime.Now; // Запоминаем время завершения
+                lastSortingResult = new SortingResult
+                {
+                    Method = selectedMethod,
+                    WordCount = words.Length,
+                    Time = (long)(endTime - startTime).TotalMilliseconds
+                };
+
+                isSortingCompleted = true; // Устанавливаем, что сортировка завершена
 
                 var wordCounts = CountWords(sortedWords);
 
@@ -90,6 +108,7 @@ namespace SortingDemo
                 MessageBox.Show($"Ошибка сортировки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private static List<string> QuickSort(List<string> words)
         {
@@ -137,5 +156,50 @@ namespace SortingDemo
             }
             this.Close();
         }
+        private void SaveResultButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isSortingCompleted)
+            {
+                MessageBox.Show("Сначала выполните сортировку, чтобы сохранить результат!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var comparisonWindow = Application.Current.Windows.OfType<TimeComparisonWindow>().FirstOrDefault();
+
+            if (comparisonWindow == null)
+            {
+                comparisonWindow = new TimeComparisonWindow();
+                comparisonWindow.Show();
+            }
+
+            if (lastSortingResult != null)
+            {
+                comparisonWindow.AddSortingResult(lastSortingResult);
+                MessageBox.Show("Результат добавлен в окно сравнения!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+
+        private void OpenComparisonWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Ищем уже открытое окно TimeComparisonWindow
+            var comparisonWindow = Application.Current.Windows.OfType<TimeComparisonWindow>().FirstOrDefault();
+
+            if (comparisonWindow == null)
+            {
+                // Если окно не найдено, создаем новое и открываем
+                comparisonWindow = new TimeComparisonWindow();
+                comparisonWindow.Show();
+            }
+            else
+            {
+                // Если окно уже открыто, активируем его
+                comparisonWindow.Activate();
+            }
+        }
+
+
+
+
     }
 }

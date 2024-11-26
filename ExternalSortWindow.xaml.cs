@@ -1,18 +1,14 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 
 namespace SortingDemo
 {
     public partial class ExternalSortWindow : Window
     {
-        private string inputFilePath;
-        private string outputFilePath;
-
         public ExternalSortWindow()
         {
             InitializeComponent();
@@ -20,91 +16,80 @@ namespace SortingDemo
 
         private void SelectInputFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+            };
             if (openFileDialog.ShowDialog() == true)
             {
-                inputFilePath = openFileDialog.FileName;
-                InputFilePath.Text = inputFilePath;
+                InputFilePath.Text = openFileDialog.FileName;
             }
         }
 
         private void SelectOutputFileButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt",
+                DefaultExt = ".csv"
+            };
             if (saveFileDialog.ShowDialog() == true)
             {
-                outputFilePath = saveFileDialog.FileName;
-                OutputFilePath.Text = outputFilePath;
+                OutputFilePath.Text = saveFileDialog.FileName;
             }
         }
 
         private async void StartSortButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(KeyIndexInput.Text) || string.IsNullOrWhiteSpace(inputFilePath) || string.IsNullOrWhiteSpace(outputFilePath))
-            {
-                MessageBox.Show("Заполните все поля и выберите файлы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!int.TryParse(KeyIndexInput.Text, out int keyIndex) || keyIndex < 0)
-            {
-                MessageBox.Show("Введите корректный индекс ключевого поля!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            int delay = (int)DelaySlider.Value;
-
-            SortingStepsLog.Clear();
-            SortingComparisonLog.Clear();
-
             try
             {
-                string selectedMethod = (SortMethodSelector.SelectedItem as ComboBoxItem)?.Content.ToString();
-                switch (selectedMethod)
+                string inputFilePath = InputFilePath.Text;
+                string outputFilePath = OutputFilePath.Text;
+                string filterColumn = KeyAttributeInput.Text;
+                string filterValue = FilterValueInput.Text;
+                string sortingMethod = ((ComboBoxItem)SortMethodSelector.SelectedItem).Content.ToString();
+                int delay = (int)DelaySlider.Value;
+
+                if (!File.Exists(inputFilePath))
+                    throw new Exception("Файл не найден.");
+
+                var table = Table.LoadFromFile(inputFilePath);
+
+                SortingLog.Clear();
+                StepLog.Clear();
+
+                Action<string> sortingLog = msg =>
                 {
-                    case "Естественное слияние":
-                        await ExternalSort.NaturalMergeSort(inputFilePath, outputFilePath, keyIndex, delay, LogStep, LogComparison);
-                        MessageBox.Show("Естественное слияние завершено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
+                    Dispatcher.Invoke(() =>
+                    {
+                        SortingLog.AppendText(msg + Environment.NewLine);
+                        SortingLog.ScrollToEnd();
+                    });
+                };
 
-                    case "Прямое слияние":
-                        await ExternalSort.DirectMergeSort(inputFilePath, outputFilePath, keyIndex, delay, LogStep, LogComparison);
-                        MessageBox.Show("Прямое слияние завершено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
+                Action<string> stepLog = msg =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        StepLog.AppendText(msg + Environment.NewLine);
+                        StepLog.ScrollToEnd();
+                    });
+                };
 
-                    case "Многопутевое слияние":
-                        await ExternalSort.MultiWayMergeSort(inputFilePath, outputFilePath, keyIndex, delay, LogStep, LogComparison);
-                        MessageBox.Show("Многопутевое слияние завершено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
+                await Task.Run(() =>
+                {
+                    ExternalSort.Sort(table, filterColumn, filterValue, filterColumn, sortingMethod, sortingLog, stepLog, delay);
+                    table.SaveToFile(outputFilePath);
+                });
 
-                    default:
-                        MessageBox.Show("Выберите метод сортировки!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        break;
-                }
+                MessageBox.Show("Сортировка завершена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка сортировки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LogStep(List<string> step)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                SortingStepsLog.AppendText($"Шаг: {string.Join(", ", step)}\n");
-                SortingStepsLog.ScrollToEnd();
-            });
-        }
-
-        private void LogComparison(string comparison)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                SortingComparisonLog.AppendText($"{comparison}\n");
-                SortingComparisonLog.ScrollToEnd();
-            });
-        }
 
         private void BackToMainButton_Click(object sender, RoutedEventArgs e)
         {

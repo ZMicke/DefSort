@@ -30,6 +30,9 @@
 
             <Button Name="StartSortButton" Content="Начать сортировку" Click="StartSortButton_Click" />
             <Button Name="BackToMainButton" Content="Назад" Click="BackToMainButton_Click" Margin="0,20,0,0" />
+            <Button Name="SaveResultButton" Content="Записать результат" Click="SaveResultButton_Click" Margin="0,20,0,0"/>
+            <Button Name="TimeComparisonButton" Content="Сравнить время обработки" Click="OpenComparisonWindowButton_Click" Margin="0,20,0,0" />
+
         </StackPanel>
 
         <!-- Область вывода -->

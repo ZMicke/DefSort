@@ -4,6 +4,34 @@ using System.Threading.Tasks;
 
 public static class SortingAlgorithms
 {
+    // Bubble Sort
+    public static async Task<List<string>> BubbleSort(int[] array, Action<int[], int, int> logStep, int delay)
+    {
+        var log = new List<string>();
+        for (int i = 0; i < array.Length - 1; i++)
+        {
+            for (int j = 0; j < array.Length - i - 1; j++)
+            {
+                log.Add($"Сравнение: {array[j]} и {array[j + 1]}");
+                logStep(array, j, j + 1);
+                await Task.Delay(delay);
+
+                if (array[j] > array[j + 1])
+                {
+                    log.Add($"Перестановка: {array[j]} и {array[j + 1]}");
+                    (array[j], array[j + 1]) = (array[j + 1], array[j]);
+                }
+
+                logStep(array, j, j + 1);
+                await Task.Delay(delay);
+            }
+        }
+
+        logStep(array, -1, -1); // Финальная визуализация
+        return log;
+    }
+
+    // Selection Sort
     public static async Task<List<string>> SelectSort(int[] array, Action<int[], int, int> logStep, int delay)
     {
         var log = new List<string>();
@@ -12,6 +40,7 @@ public static class SortingAlgorithms
             int minIndex = i;
             for (int j = i + 1; j < array.Length; j++)
             {
+                log.Add($"Сравнение: {array[j]} и {array[minIndex]}");
                 logStep(array, j, minIndex);
                 await Task.Delay(delay);
 
@@ -31,44 +60,14 @@ public static class SortingAlgorithms
             await Task.Delay(delay);
         }
 
-        // Финальная визуализация
-        logStep(array, -1, -1);
+        logStep(array, -1, -1); // Финальная визуализация
         return log;
     }
 
-
-
-    public static async Task<List<string>> BubbleSort(int[] array, Action<int[], int, int> logStep, int delay)
-    {
-        var log = new List<string>();
-        for (int i = 0; i < array.Length - 1; i++)
-        {
-            for (int j = 0; j < array.Length - i - 1; j++)
-            {
-                logStep(array, j, j + 1);
-                await Task.Delay(delay);
-
-                if (array[j] > array[j + 1])
-                {
-                    log.Add($"Перестановка: {array[j]} и {array[j + 1]}");
-                    (array[j], array[j + 1]) = (array[j + 1], array[j]);
-                }
-
-                logStep(array, j, j + 1);
-                await Task.Delay(delay);
-            }
-        }
-
-        // Финальная визуализация
-        logStep(array, -1, -1);
-        return log;
-    }
-
-
+    // Quick Sort
     public static async Task<List<string>> QuickSort(int[] array, int low, int high, Action<int[], int, int> logStep, int delay)
     {
         var log = new List<string>();
-
         if (low < high)
         {
             int pivotIndex = await Partition(array, low, high, log, logStep, delay);
@@ -80,20 +79,14 @@ public static class SortingAlgorithms
             log.AddRange(rightLog);
         }
 
-        // Финальная визуализация текущего диапазона
-        if (low >= 0 && high < array.Length)
-        {
-            logStep(array, -1, -1);
-        }
-
+        logStep(array, -1, -1); // Финальная визуализация
         return log;
     }
 
-
     private static async Task<int> Partition(int[] array, int low, int high, List<string> log, Action<int[], int, int> logStep, int delay)
     {
-        int pivot = array[high]; // Опорный элемент
-        int i = low - 1; // Индекс для меньших элементов
+        int pivot = array[high];
+        int i = low - 1;
 
         for (int j = low; j < high; j++)
         {
@@ -102,23 +95,22 @@ public static class SortingAlgorithms
             {
                 i++;
                 log.Add($"Перестановка: {array[i]} и {array[j]}");
-                (array[i], array[j]) = (array[j], array[i]); // Перестановка
+                (array[i], array[j]) = (array[j], array[i]);
             }
 
             logStep(array, i, j);
             await Task.Delay(delay);
         }
 
-        // Перестановка опорного элемента
         log.Add($"Перестановка опорного элемента: {array[i + 1]} и {array[high]}");
         (array[i + 1], array[high]) = (array[high], array[i + 1]);
         logStep(array, i + 1, high);
         await Task.Delay(delay);
 
-        return i + 1; // Возвращаем индекс опорного элемента
+        return i + 1;
     }
 
-
+    // Heap Sort
     public static async Task<List<string>> HeapSort(int[] array, Action<int[], int, int> logStep, int delay)
     {
         var log = new List<string>();
@@ -140,8 +132,7 @@ public static class SortingAlgorithms
             await Heapify(array, i, 0, log, logStep, delay);
         }
 
-        // Финальная визуализация
-        logStep(array, -1, -1);
+        logStep(array, -1, -1); // Финальная визуализация
         return log;
     }
 
@@ -174,6 +165,4 @@ public static class SortingAlgorithms
             await Heapify(array, n, largest, log, logStep, delay);
         }
     }
-
-
 }

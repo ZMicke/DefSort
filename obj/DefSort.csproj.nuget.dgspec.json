@@ -61,6 +61,14 @@
             "MaterialDesignThemes.Wpf": {
               "target": "Package",
               "version": "[1.0.1, )"
+            },
+            "ScottPlot": {
+              "target": "Package",
+              "version": "[5.0.47, )"
+            },
+            "ScottPlot.WPF": {
+              "target": "Package",
+              "version": "[5.0.47, )"
             }
           },
           "imports": [
